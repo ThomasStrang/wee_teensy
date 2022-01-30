@@ -12,7 +12,7 @@
 //BOT_LEFT    18               YELLOW      5
 //BOT_RIGHT   19               ORANGE      13
 //BOT         20               RED         3
-
+//DOT         21               ORANGE      7
 
 #define TOP 14
 #define TOP_LEFT 15
@@ -21,6 +21,7 @@
 #define BOT_LEFT 18
 #define BOT_RIGHT 19
 #define BOT 20
+#define DOT 21
 
 //brightness is PWM thickness, so between 0 and 255 at 4482hz. however 255 would definitely blow the leds, 20 is bright. 
 #define BRIGHTNESS 5
@@ -47,6 +48,7 @@ void all_values_off() {
    digitalWrite(BOT_LEFT,HIGH);
    digitalWrite(BOT_RIGHT,HIGH);
    digitalWrite(BOT,HIGH);
+   digitalWrite(DOT, HIGH);
 }
 
 void all_off() {
@@ -111,7 +113,7 @@ void light_number(int value) {
      digitalWrite(BOT,LOW);
      break;
     case 6:
-     digitalWrite(TOP,HIGH);
+     digitalWrite(TOP,LOW);
      digitalWrite(TOP_LEFT,LOW);
      digitalWrite(TOP_RIGHT,HIGH);
      digitalWrite(MIDDLE,LOW);
@@ -159,6 +161,7 @@ void light_digit(int digit, int value, int brightness) {
 //function takes 200 micro seconds
 void light_digits(int digit_1, int digit_2, int digit_3, int digit_4, int brightness) {
   light_digit(0,digit_1,brightness);
+  digitalWrite(DOT,LOW);//add the dot
   delayMicroseconds(50);
   light_digit(1,digit_2,brightness);
   delayMicroseconds(50);
@@ -181,6 +184,7 @@ byte setup_display() {
    pinMode(BOT_LEFT, OUTPUT);
    pinMode(BOT_RIGHT, OUTPUT);
    pinMode(BOT, OUTPUT);
+   pinMode(DOT, OUTPUT);
    analogWriteFrequency(0,585000);
    analogWriteFrequency(1,585000);
    analogWriteFrequency(2,585000);
