@@ -111,6 +111,6 @@ void loop() {
   sync_with_signal();
 //  calculate_frequency();
   print_vals();
-  delay(screen_delay_ms);
+  delay(screen_delay_ms-(delay_micros>>1));
   handle_input();
 }

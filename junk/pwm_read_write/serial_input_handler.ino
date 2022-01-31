@@ -3,8 +3,7 @@
 #define UPDATE_READINGS 'R'
 #define UPDATE_FPS 'S'
 
-#define ANALOG 'A'
-#define DIGITAL 'D'
+#define TOGGLE_ANALOG 'A'
 #define THREE_VOLTS '3'
 #define FIVE_VOLTS '5'
 #define TWELVE_VOLTS '2'
@@ -52,8 +51,7 @@ void handle_input() {
       case UPDATE_FPS :
         update_fps();
         break;
-      case ANALOG :
-      case DIGITAL :
+      case TOGGLE_ANALOG :
         toggle_analog();
         break;
       case THREE_VOLTS :
