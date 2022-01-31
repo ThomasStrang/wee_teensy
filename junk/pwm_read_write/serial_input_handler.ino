@@ -1,6 +1,7 @@
 //first char is the control char, the rest is an integer.
+//setting too high a frequency will just cause it to run at max speed possible
 #define UPDATE_FREQUENCY 'F'
-#define UPDATE_READINGS 'R'
+//#define UPDATE_READINGS 'R'
 #define UPDATE_FPS 'S'
 
 #define TOGGLE_ANALOG 'A'
@@ -18,12 +19,12 @@ int read_int_from_serial() {
   }
   return val;
 }
-
-void update_readings() {
-  int val = read_int_from_serial();
-  if(val>0 && val <=500) 
-    pixels_per_reading=500/val;
-}
+//
+//void update_readings() {
+//  int val = read_int_from_serial();
+//  if(val>0 && val <=500) 
+//    pixels_per_reading=500/val;
+//}
 
 void update_frequency() {
   update_frequency(read_int_from_serial());
@@ -45,9 +46,9 @@ void handle_input() {
       case UPDATE_FREQUENCY :
         update_frequency();
         break;
-      case UPDATE_READINGS :
-        update_readings();
-        break;
+//      case UPDATE_READINGS :
+//        update_readings();
+//        break;
       case UPDATE_FPS :
         update_fps();
         break;

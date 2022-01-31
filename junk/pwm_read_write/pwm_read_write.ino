@@ -1,8 +1,9 @@
 /*
- * An oscilloscope program. 
- * Please see serial_input_handler.ino for adjusting configs
- * Maximum frequency for digital readings is ~2.6 Mhz
- * Maximum frequency for analogue readings is ~55 Khz
+ * An oscilloscope program. View the output and adjust configs from Serial Plotter.
+ * Please see serial_input_handler.ino for how to adjust configs
+ * Maximum frequency for digital  readings is ~ 13.2 Mhz
+ * Maximum frequency for analogue readings is ~ 57.5 Khz
+ * Minimum frequency is 500 hz
  */
 #define PIN_OUT 11
 #define PIN_IN 15
@@ -12,10 +13,10 @@
 IntervalTimer update_pwm_width_timer;
 
 
-#define DIGITAL_READ_MICROS 0.379
-#define ANALOG_READ_MICROS 17.94
+#define DIGITAL_READ_MICROS 0.075688
+#define ANALOG_READ_MICROS 17.376194
 
-int delay_micros = 18;
+int read_delay_micros = 18;
 bool analog = false;
 int pixels_per_reading = 1;
 int screen_delay_ms = 250;
@@ -27,34 +28,34 @@ void print(String str, float i) {
 }
 
 void setup() {
-  // put your setup code here, to run once:
-  analogWrite(PIN_OUT,10);
-  update_pwm_width_timer.begin(update_pwm_width, 50000);
+  analogWrite(PIN_OUT,128);
+  update_pwm_width_timer.begin(update_pwm_width, 200000);
 }
 
 int pwm_width=16;
 
 void update_pwm_width() {
-  pwm_width+=1;
+  pwm_width+=4;
   if(pwm_width >= 256) pwm_width = 0;
   analogWrite(PIN_OUT,pwm_width);
 }
 
 void update_frequency(int frequency) {
+  if(frequency < 500) return;
   float desired_micros_per_reading = 1000000.0/((float)frequency);
   float new_delay = desired_micros_per_reading - (analog ? ANALOG_READ_MICROS : DIGITAL_READ_MICROS);
-  delay_micros=round(new_delay);
-  if(delay_micros < 0) delay_micros = 0;
+  read_delay_micros=round(new_delay);
+  if(read_delay_micros < 0) read_delay_micros = 0;
 }
 
 void toggle_analog() {
   if(analog) {
     analog=false;
-    delay_micros +=18;
+    read_delay_micros +=18;
   } else {
     analog=true;
-    delay_micros -=18;
-    if(delay_micros < 0) delay_micros = 0;
+    read_delay_micros -=18;
+    if(read_delay_micros < 0) read_delay_micros = 0;
   }
 }
 
@@ -74,26 +75,34 @@ void sync_with_signal() {
       break;
 }
 
+void send_to_serial(int* vals, int num) {
+  for(int i = 0; i < num; i++) {
+    Serial.println(vals[i]);
+  }
+}
 
 void print_vals() {
+  int vals[500];
   for(int i = 0; i < 500; i++) {
     if(!(i%pixels_per_reading)) {
       int val = get_val();
       for(int j = 0; j < pixels_per_reading && j+i<500; j++) {
-        Serial.println(val);
+        vals[i]=val;
       }
-      delayMicroseconds(delay_micros);
+      delayMicroseconds(read_delay_micros);
     }
   }
+  send_to_serial(vals,500);
 }
 
 int get_val() {
    return analog ? analogRead(pin_in) : digitalRead(pin_in);
 }
 
+//not used in prod program , useful for debugging.
 void calculate_frequency() {
   analog=false;
-  delay_micros=0;
+  read_delay_micros=0;
   int total_readings = -500;
   int end = micros()+10000000;//10 seconds from now
   while(int(micros()) < end) {
@@ -111,6 +120,10 @@ void loop() {
   sync_with_signal();
 //  calculate_frequency();
   print_vals();
-  delay(screen_delay_ms-(delay_micros>>1));
+  int time_to_read = read_delay_micros>>1;//using micros in a millisecond context multiplies the time by 1000. bitshifting by 1 divides by 2, resulting in total multiplication of 500.
+  int time_to_wait = screen_delay_ms - time_to_read;
+  if(time_to_wait > 0) {
+    delay(time_to_wait);//technically this doesn't take into account the time to display (or handling input), but it's only ~0.1 milliseconds so it doesn't really matter.
+  }
   handle_input();
 }
