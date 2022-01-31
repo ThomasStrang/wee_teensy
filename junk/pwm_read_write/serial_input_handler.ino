@@ -27,20 +27,10 @@ void update_readings() {
 }
 
 void update_frequency() {
-  delay_micros=read_int_from_serial();
+  update_frequency(read_int_from_serial());
 }
 void update_fps() {
   screen_delay_ms=1000/read_int_from_serial();
-}
-
-void set_to_analog() {
-  pinMode(PIN_IN, INPUT_DISABLE);
-  analog=true;
-}
-
-void set_to_digital() {
-  pinMode(PIN_IN, INPUT);
-  analog=false;
 }
 
 void update_voltage_mode() {
@@ -63,10 +53,8 @@ void handle_input() {
         update_fps();
         break;
       case ANALOG :
-        set_to_analog();
-        break;
       case DIGITAL :
-        set_to_digital();
+        toggle_analog();
         break;
       case THREE_VOLTS :
         pin_in=PIN_IN;
