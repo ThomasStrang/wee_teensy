@@ -4,11 +4,13 @@
  * Maximum frequency for digital  readings is ~ 13.2 Mhz
  * Maximum frequency for analogue readings is ~ 57.5 Khz
  * Minimum frequency is 500 hz
+ * 
+ * pin 16 has 258k ohms of resistance, 200 before and 58 after. resulting in 58/358 (0.2248062015503876) * the input voltage. 14.679 V -> 3.3 V
  */
 #define PIN_OUT 11
-#define PIN_IN 15
-#define PIN_IN_5V 16
-#define PIN_IN_12V 17
+#define PIN_IN 14
+#define PIN_IN_5V 15
+#define PIN_IN_12V 16
 
 IntervalTimer update_pwm_width_timer;
 
@@ -30,6 +32,7 @@ void print(String str, float i) {
 void setup() {
   analogWrite(PIN_OUT,128);
   update_pwm_width_timer.begin(update_pwm_width, 200000);
+  toggle_analog();
 }
 
 int pwm_width=16;
@@ -59,25 +62,41 @@ void toggle_analog() {
   }
 }
 
-float analog_to_voltage_calibration = 1.0/1024*3.3;
+float twelve_volt_calibration = 1.0/1023*14.679;
+float five_volt_calibration = 1.0/1023*5.0;
+float analog_to_voltage_calibration = 1.0/1023*3.3;
 
 float convert_to_volts(int val) {
-  return analog_to_voltage_calibration*val;
+  switch(pin_in) {
+    case PIN_IN_5V:
+      return five_volt_calibration*((float)val);
+    case PIN_IN_12V:
+      return twelve_volt_calibration*((float)val);
+    case PIN_IN :
+    default:
+      return analog_to_voltage_calibration*((float)val);
+  }
 }
 
 void sync_with_signal() {
   int now = micros();
+  pinMode(pin_in,INPUT);
   while(digitalRead(pin_in)) 
     if(micros() - now > 1000) 
       break;
   while(!digitalRead(pin_in)) 
     if(micros() - now > 1000) 
       break;
+  pinMode(pin_in,analog ? INPUT_DISABLE : INPUT);
 }
 
 void send_to_serial(int* vals, int num) {
   for(int i = 0; i < num; i++) {
-    Serial.println(vals[i]);
+    if(analog) {
+      Serial.println(convert_to_volts(vals[i]));
+    } else {
+      Serial.println(vals[i]);
+    }
   }
 }
 
