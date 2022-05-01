@@ -22,7 +22,7 @@ int read_delay_micros = 18;
 bool analog = false;
 int pixels_per_reading = 1;
 int screen_delay_ms = 250;
-int pin_in = PIN_IN;
+int pin_in = PIN_IN_12V;
 
 void print(String str, float i) {
   Serial.print(str);
