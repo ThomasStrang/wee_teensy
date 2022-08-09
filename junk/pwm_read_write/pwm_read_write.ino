@@ -6,7 +6,7 @@
  * Minimum frequency is 500 hz
  * 
  * This program will run for 35 minutes before crashing due to an integer overflow which I can't be bothered fixing. 
- * If you need to run this for longer then turn it off and on again.
+ * If you need to run this for longer then turn it off and on again.  
  * 
  * pin 16 has 258k ohms of resistance, 200 before and 58 after. resulting in 58/358 (0.2248062015503876) * the input voltage. 14.679 V -> 3.3 V
  */
