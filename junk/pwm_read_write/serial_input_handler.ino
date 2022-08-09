@@ -5,7 +5,10 @@
 #define TOGGLE_ANALOG 'A'
 #define SET_MODE_VOLTMETER 'V'
 #define SET_MODE_OSCILLOSCOPE 'O'
+
 #define SET_MODE_MEASURE_FREQUENCY 'M'
+#define SET_NUM_SIGNALS_TO_MEASURE 'N'
+#define RUN_SIGNAL_VOLTAGE_CALIBRATION 'C'
 
 //#define THREE_VOLTS '3'
 //#define FIVE_VOLTS '5'
@@ -41,7 +44,13 @@ void handle_input() {
         mode=MODE_OSCILLOSCOPE;
         break;
       case SET_MODE_MEASURE_FREQUENCY :
-        mode=MODE_MEASURE_FREQUENCY;
+        set_mode_frequency_measure();
+        break;
+      case SET_NUM_SIGNALS_TO_MEASURE :
+        number_of_signals_to_measure=read_int_from_serial();
+        break;
+      case RUN_SIGNAL_VOLTAGE_CALIBRATION :
+        calibrate_high_threshold();
         break;
 //      case THREE_VOLTS :
 //        pin_in=PIN_IN;
