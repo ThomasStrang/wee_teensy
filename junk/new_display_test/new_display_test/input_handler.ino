@@ -1,23 +1,30 @@
 void handle_left() {
   Serial.println("left");
-  square.p.x--;
+  graph.move_graph(graph.x_offset-5, graph.y_offset);
 }
 
 void handle_right() {
   Serial.println("right");
-  square.p.x++;
+  graph.move_graph(graph.x_offset+5, graph.y_offset);
 }
 
 void handle_up() {
   Serial.println("up");
-  square.p.y--;
-  
+  graph.move_graph(graph.x_offset, graph.y_offset-5);
 }
 
 void handle_down() {
   Serial.println("down");
-  square.p.y++;
-  
+  graph.move_graph(graph.x_offset, graph.y_offset+5);
+}
+
+void handle_forward_slash() {
+  for(float i =0 ; i < 100; i+=0.5) {
+    Serial.print(i);
+    Serial.print(" -> ");
+    Serial.println(i*100);
+    graph.draw(i,i*100);
+  }
 }
 
 void handle_input() {
@@ -35,8 +42,8 @@ void handle_input() {
       case 'W':
       handle_up();
       break;
-      case 'V':
-      square.viewable=!square.viewable;
+      case '/':
+      handle_forward_slash();
       break;
     }
   }
