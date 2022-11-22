@@ -27,6 +27,10 @@ void handle_forward_slash() {
   }
 }
 
+void handle_p() {
+  draw_pikachu();
+}
+
 void handle_input() {
   while(Serial.available()) {
     switch(Serial.read()) {
@@ -44,6 +48,9 @@ void handle_input() {
       break;
       case '/':
       handle_forward_slash();
+      case 'p':
+      case 'P':
+      handle_p();
       break;
     }
   }
