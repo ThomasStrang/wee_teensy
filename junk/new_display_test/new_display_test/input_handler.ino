@@ -21,12 +21,12 @@ void handle_forward_slash() {
 }
 
 void handle_p() {
-  draw_pikachu();
+  Serial.println("p?");
 }
 
 void handle_input() {
-  pinMode(18,INPUT);
-  update_input_voltage(digitalRead(18));
+  pinMode(27,INPUT);
+  update_input_voltage(analogRead(27));
   while(Serial.available()) {
     switch(Serial.read()) {
       case 'A':

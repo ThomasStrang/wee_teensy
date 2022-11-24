@@ -5,6 +5,6 @@ void setup() {
 
 void loop() {
   handle_input();
-  delay(100);
-  draw_pikachu();
+  draw_stuff();
+  delay(1e0);
 }
