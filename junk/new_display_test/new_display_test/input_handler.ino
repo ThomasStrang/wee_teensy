@@ -1,3 +1,9 @@
+//input a is gp28, pin 34
+#define INPUT_A 28
+//input b is gp26, ping 31
+#define INPUT_B 26
+
+
 void handle_left() {
   Serial.println("left");
 }
@@ -25,8 +31,8 @@ void handle_p() {
 }
 
 void handle_input() {
-  pinMode(27,INPUT);
-  update_input_voltage(analogRead(27));
+  pinMode(INPUT_A,INPUT);
+  update_input_voltage(analogRead(INPUT_A));
   while(Serial.available()) {
     switch(Serial.read()) {
       case 'A':

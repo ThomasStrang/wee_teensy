@@ -6,5 +6,5 @@ void setup() {
 void loop() {
   handle_input();
   draw_stuff();
-  delay(1e0);
+  delay(100);
 }

@@ -2,6 +2,13 @@
 #include <Adafruit_ST7735.h>
 #include <SPI.h>
 
+//inputs are connected to ground via 68000 ohms and to the terminals via 200000 ohms. 
+//total resistance 268000 ohms. 
+//voltage reduction is 68/268 -> 13V is read as 3.3V. 
+//1023 means 13V, so reading to 
+// Not sure on the specifics as to why, but the pico gives a reading of  22 even when connected to ground.
+#define READING_TO_VOLTAGE 0.01270772238
+
 uint16_t parse_colour(uint16_t r, uint16_t g, uint16_t b) {
   return (b<<11)+(g*2<<5)+r;
 }
@@ -11,6 +18,11 @@ uint16_t COLOUR_RED = parse_colour(18,0,0);
 uint16_t COLOUR_REDDER = parse_colour(31,0,0);
 uint16_t COLOUR_LIME = parse_colour(4,16,24);
 uint16_t COLOUR_WHITE = parse_colour(31,31,31);
+uint16_t COLOUR_PIKACHU = parse_colour(30,28,0);
+uint16_t COLOUR_PIKACHU_LIGHT = parse_colour(31,29,15);
+uint16_t COLOUR_BACKGROUND = COLOUR_BLACK;
+
+
 
 Adafruit_ST7735 tft = Adafruit_ST7735(&SPI1,9,8,12);
 
@@ -46,11 +58,11 @@ class GraphDrawer {
     }
 
     void draw_title() {
-      draw_title(parse_colour(31,0,0));
+      draw_title(COLOUR_PIKACHU);
     }
 
     void _undraw_title() {
-      draw_title(COLOUR_BLACK);
+      draw_title(COLOUR_BACKGROUND);
     }
 
     void draw_border(uint16_t colour) {
@@ -65,7 +77,7 @@ class GraphDrawer {
     }
 
     void _undraw_border() {
-        draw_border(COLOUR_BLACK);
+        draw_border(COLOUR_BACKGROUND);
     }
 
     uint8_t graph_y_to_display_y(uint8_t y) {
@@ -79,14 +91,14 @@ class GraphDrawer {
   
     void clear_graph() {
       for(uint8_t x = 0; x < num_x_pixels; x++) 
-        tft.drawPixel(graph_x_to_display_x(x), graph_y_to_display_y(pixels[x]), COLOUR_BLACK);
+        tft.drawPixel(graph_x_to_display_x(x), graph_y_to_display_y(pixels[x]), COLOUR_BACKGROUND);
       _undraw_border();
       _undraw_title();
     }
     
     void draw_graph() {
       for(uint8_t x = 0; x < num_x_pixels; x++) {
-        tft.drawPixel(graph_x_to_display_x(x), graph_y_to_display_y(pixels[x]), COLOUR_LIME);
+        tft.drawPixel(graph_x_to_display_x(x), graph_y_to_display_y(pixels[x]), COLOUR_WHITE);
       }
       draw_border();
       draw_title();
@@ -114,8 +126,8 @@ class GraphDrawer {
 
     void draw_pixel(uint8_t x_pixel, uint8_t y_pixel) {
       if(pixels[x_pixel]!=y_pixel) {
-        tft.drawPixel(graph_x_to_display_x(x_pixel), graph_y_to_display_y(pixels[x_pixel]), COLOUR_BLACK);
-        tft.drawPixel(graph_x_to_display_x(x_pixel), graph_y_to_display_y(y_pixel), COLOUR_LIME);
+        tft.drawPixel(graph_x_to_display_x(x_pixel), graph_y_to_display_y(pixels[x_pixel]), COLOUR_BACKGROUND);
+        tft.drawPixel(graph_x_to_display_x(x_pixel), graph_y_to_display_y(y_pixel), COLOUR_WHITE);
         pixels[x_pixel]=y_pixel;
       }
       
@@ -139,14 +151,10 @@ class GraphDrawer {
     }
 };
 
-//char speed_title[] ="Vehicle Speed (mph)";
-//char tacho_title[] ="Engine Speed (rpm)";
-//GraphDrawer graph = GraphDrawer(20,6, 120, 50, 100, 10100, speed_title);
-//GraphDrawer graph2 = GraphDrawer(20,72, 92, 50, 100, 10100, tacho_title);
 
 
-char input_high_title[] ="digital input signal";
-GraphDrawer input_high_graph = GraphDrawer(10,10, 140, 108, 100, 1024, input_high_title);
+char input_high_title[] ="Voltage Readings";
+GraphDrawer input_high_graph = GraphDrawer(10,45, 140, 78, 100, 1023, input_high_title);
 
 //char text[] = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserun";
 //void testdrawtext(char *text, uint16_t color) {
@@ -164,7 +172,7 @@ void undraw_pikachu(uint16_t x_offset, uint16_t y_offset) {
     byte gamma=pikachu_image[i*4+3]>>3;
     uint16_t row = i>>6;
     if(gamma) {
-      tft.drawPixel(x_offset+i%64,y_offset+row,COLOUR_BLACK);
+      tft.drawPixel(x_offset+i%64,y_offset+row,COLOUR_BACKGROUND);
     }
   }
   
@@ -190,54 +198,56 @@ void setup_rendering() {
   SPI1.begin(true);
   tft.initR(INITR_GREENTAB);
   tft.setRotation(3);
-  tft.fillScreen(COLOUR_BLACK);
+  tft.fillScreen(COLOUR_BACKGROUND);
   pinMode(13, OUTPUT);
   analogWrite(13, 32);
   input_high_graph.draw_graph();
 }
 
-void draw_high(uint16_t colour) {
-      tft.setCursor(20,60);
-      tft.setTextColor(colour);
+
+char drawn_voltage[] = "00.00V";
+char new_voltage_str[] = "00.00V";
+
+void update_drawn_voltage(float f) {
+  new_voltage_str[0]=int(f/10)+48;//48 because of the ascii table
+  new_voltage_str[1]=int(f)%10+48;
+  new_voltage_str[2]='.';
+  new_voltage_str[3]=int(f*10)%10+48;
+  new_voltage_str[4]=int(f*100)%10+48;
+  new_voltage_str[5]='V';
+  Serial.println("WE GOT THIS FAR!");
+  Serial.println(new_voltage_str);
+  Serial.println("Why would this be weird?");
+  for(int i =0;i<6;i++){
+    if(new_voltage_str[i]!=drawn_voltage[i]) {
+      tft.setCursor(10,10);
+      tft.setTextColor(COLOUR_BACKGROUND);
       tft.setTextWrap(true);
       tft.setTextSize(3);
-      tft.print("HIGH");
-      tft.setCursor(10,85);
-      tft.print("VOLTAGE");
-}
-
-//bool drawn_input_voltage=false;
-void update_input_voltage(int input_voltage) {
-  input_high_graph.add_val_to_end(input_voltage);
-//  if(input_voltage!=drawn_input_voltage){
-//    if (input_voltage) {
-//      //draw it
-//      draw_high(COLOUR_LIME);
-//      drawn_input_voltage=true;
-//    } else {
-//      //undraw it.
-//      draw_high(COLOUR_BLACK);
-//      drawn_input_voltage=false;
-//    }
-//  }
-}
-
-uint16_t pikachu_x_offset=85;
-uint16_t pikachu_y_offset=15;
-bool pikachu_going_down=true;
-
-void draw_stuff() {
-  undraw_pikachu(pikachu_x_offset, pikachu_y_offset);
-  if(pikachu_going_down) {
-    pikachu_y_offset+=1;
-    if(pikachu_y_offset==20) {
-      pikachu_going_down = false;
-    }
-  } else {
-    pikachu_y_offset-=1;
-    if(pikachu_y_offset==10) {
-      pikachu_going_down = true;
+      tft.print(drawn_voltage);
+      tft.setTextColor(COLOUR_WHITE);
+      tft.setCursor(10,10);
+      tft.print(new_voltage_str);
+      for(int j=0;j<6;j++){
+        drawn_voltage[j]=new_voltage_str[j];
+      }
+      break;
     }
   }
+}
+
+float input_reading_to_voltage(int input_reading) {
+  return input_reading*READING_TO_VOLTAGE;
+}
+
+void update_input_voltage(int input_reading) {
+  update_drawn_voltage(input_reading_to_voltage(input_reading));
+  input_high_graph.add_val_to_end(input_reading);
+}
+
+uint16_t pikachu_x_offset=103;
+uint16_t pikachu_y_offset=4;
+
+void draw_stuff() {
   draw_pikachu(pikachu_x_offset, pikachu_y_offset);
 }
