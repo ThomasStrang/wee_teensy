@@ -1,4 +1,5 @@
 void setup() {
+  analogWrite(21,127);
   setup_rendering();
 }
 

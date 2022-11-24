@@ -1,29 +1,22 @@
 void handle_left() {
   Serial.println("left");
-  graph.move_graph(graph.x_offset-5, graph.y_offset);
 }
 
 void handle_right() {
   Serial.println("right");
-  graph.move_graph(graph.x_offset+5, graph.y_offset);
 }
 
 void handle_up() {
   Serial.println("up");
-  graph.move_graph(graph.x_offset, graph.y_offset-5);
 }
 
 void handle_down() {
   Serial.println("down");
-  graph.move_graph(graph.x_offset, graph.y_offset+5);
 }
 
 void handle_forward_slash() {
   for(float i =0 ; i < 100; i+=0.5) {
     Serial.print(i);
-    Serial.print(" -> ");
-    Serial.println(i*100);
-    graph.draw(i,i*100);
   }
 }
 
@@ -32,6 +25,8 @@ void handle_p() {
 }
 
 void handle_input() {
+  pinMode(18,INPUT);
+  update_input_voltage(digitalRead(18));
   while(Serial.available()) {
     switch(Serial.read()) {
       case 'A':
