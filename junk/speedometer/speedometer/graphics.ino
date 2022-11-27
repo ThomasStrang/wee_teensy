@@ -215,9 +215,6 @@ void update_drawn_voltage(float f) {
   new_voltage_str[3]=int(f*10)%10+48;
   new_voltage_str[4]=int(f*100)%10+48;
   new_voltage_str[5]='V';
-  Serial.println("WE GOT THIS FAR!");
-  Serial.println(new_voltage_str);
-  Serial.println("Why would this be weird?");
   for(int i =0;i<6;i++){
     if(new_voltage_str[i]!=drawn_voltage[i]) {
       tft.setCursor(10,10);
