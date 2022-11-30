@@ -39,8 +39,16 @@ void handle_p() {
   Serial.println("p");
 }
 
+//inputs are connected to ground via 68000 ohms and to the terminals via 200000 ohms. 
+//total resistance 268000 ohms. 
+//voltage reduction is 68/268 -> 13V is read as 3.3V. 
+//1023 means 13V, so reading to 
+// Not sure on the specifics as to why, but the pico gives a reading of  22 even when connected to ground.
+#define READING_TO_VOLTAGE 0.01270772238
+
 void handle_input_a(int i) {
-  update_input_voltage(i);
+  voltage_drawer.update_float(i*READING_TO_VOLTAGE);
+  voltage_graph_drawer.add_val_to_end(i);
 }
 
 void handle_input_b(int i) {
