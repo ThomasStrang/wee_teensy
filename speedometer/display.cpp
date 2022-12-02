@@ -26,7 +26,7 @@ StringDrawer::~StringDrawer() {
 void StringDrawer::_draw(uint16_t colour) {
 	tft->setCursor(x,y);
 	tft->setTextWrap(true);
-	tft->setTextSize(3);
+	tft->setTextSize(2);
 	tft->setTextColor(colour);
 	tft->print(str);
 }
@@ -88,6 +88,7 @@ void GraphDrawer::draw_title(uint16_t colour) {
 	tft->setCursor(x+2, y+2);
 	tft->setTextColor(colour);
 	tft->setTextWrap(true);
+	tft->setTextSize(1);
 	tft->print(title);
 }
 

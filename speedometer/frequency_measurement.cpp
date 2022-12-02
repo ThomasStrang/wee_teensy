@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include "frequency_measurement.h"
-FrequencyMeasurer::FrequencyMeasurer(uint8_t input_pin, bool starts_at_high, float minimum_frequency) : input_pin{input_pin}, starts_at_high{starts_at_high}, minimum_frequency{minimum_frequency}, micros_of_last_change{0}, current_frequency{minimum_frequency} {
+FrequencyMeasurer::FrequencyMeasurer(uint8_t input_pin, bool starts_at_high, float minimum_frequency) : input_pin{input_pin}, starts_at_high{starts_at_high}, minimum_frequency{minimum_frequency}, micros_of_last_change{micros()}, current_frequency{minimum_frequency} {
 	pinMode(input_pin,INPUT);
 	currently_high=digitalRead(input_pin);
 	maximum_gap_between_pulses=1000000.0/minimum_frequency;

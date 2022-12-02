@@ -29,7 +29,7 @@ class Drawable {
     void undraw();
 };
 
-class StringDrawer : Drawable {
+class StringDrawer : public Drawable {
   protected:
     char* str;//own's it's own string, frees it once it's done.
     uint8_t num_chars;
@@ -45,7 +45,7 @@ class StringDrawer : Drawable {
     void undraw();
 };
 
-class FloatDrawer : StringDrawer {
+class FloatDrawer : public StringDrawer {
   private:
     float currently_drawn_val;
     float max_value;
@@ -61,7 +61,7 @@ class FloatDrawer : StringDrawer {
     void undraw();
 };
 
-class GraphDrawer : Drawable {
+class GraphDrawer : public Drawable {
   private:
     uint8_t internal_y;
     uint8_t num_x_pixels;
@@ -91,7 +91,7 @@ class GraphDrawer : Drawable {
     void add_val_to_end(float y);
 };
 
-class Sprite : Drawable {
+class Sprite : public Drawable {
   private:
     int num_pixels;
     byte* image_buffer;
