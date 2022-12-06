@@ -4,10 +4,10 @@
 #include "display.h"
 #include "frequency_measurement.h"
 
-//input is gp28, pin 34
-#define INPUT_SPEEDO 28
 //input is gp26, pin 31
-#define INPUT_TACHO 26
+#define INPUT_SPEEDO 26
+//input is gp28, pin 34
+#define INPUT_TACHO 28
 //voltage reduction is 68/268 -> 13V is read as 3.3V. 
 //1023==13v, 1023/13== 0.012...
 #define READING_TO_VOLTAGE 0.01270772238
