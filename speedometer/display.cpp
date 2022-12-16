@@ -65,7 +65,7 @@ void FloatDrawer::update_float(float f) {
 	if(f>max_value) {
 		f=max_value;
 	}
-	snprintf(new_str, num_chars*sizeof(char), "%5.2f", f);
+	snprintf(new_str, num_chars*sizeof(char), "%6.1f", f);
   update_string(new_str);
 }
 

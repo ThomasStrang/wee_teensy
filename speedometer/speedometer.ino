@@ -18,7 +18,7 @@ byte pikachu_image[] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 
 char initial_drawn_val[] = "00.00";
 FloatDrawer tacho_drawer = FloatDrawer(&tft_display,75,10,7);
-FloatDrawer speedo_drawer = FloatDrawer(&tft_display,75,36,5);
+FloatDrawer speedo_drawer = FloatDrawer(&tft_display,75,36,7);
 Sprite pikachu_drawer = Sprite(&tft_display, 4096, pikachu_image, 1,0);
 char speedo_graph_title[] = "MPH";
 char tacho_graph_title[] = "RPM";
@@ -112,5 +112,4 @@ void loop() {
     update_dials();
     updated_dials_last_millis=millis();
   }
-  delay(1);
 }
