@@ -27,8 +27,8 @@ char tacho_graph_title[] = "RPM";
 GraphDrawer speedo_graph_drawer = GraphDrawer(&tft_display, 5,60, 150, 30, 100, 70, speedo_graph_title);
 GraphDrawer tacho_graph_drawer = GraphDrawer(&tft_display, 5,94, 150, 30, 100, 6500, tacho_graph_title);
 
-FrequencyMeasurer speedo_measurer = FrequencyMeasurer(INPUT_SPEEDO, true, 1);
-FrequencyMeasurer tacho_measurer = FrequencyMeasurer(INPUT_TACHO, true, 1);
+FrequencyMeasurer speedo_measurer = FrequencyMeasurer(INPUT_SPEEDO, true, 0.1);
+FrequencyMeasurer tacho_measurer = FrequencyMeasurer(INPUT_TACHO, true, 0.1);
 
 unsigned long update_graph_interval_millis=1000;
 unsigned long updated_graph_last_millis=0;
@@ -83,15 +83,21 @@ void handle_input() {
 void update_graphs() {
   float speedo_hz=speedo_measurer.get_current_frequency_hz();
   float tacho_hz=tacho_measurer.get_current_frequency_hz();
-  float tacho_rpm=tacho_hz/60;
+  float tacho_rpm=tacho_hz*30;
   tacho_graph_drawer.add_val_to_end(tacho_rpm);
   speedo_graph_drawer.add_val_to_end(speedo_hz);
 }
 
 void update_dials() {
   float speedo_hz=speedo_measurer.get_current_frequency_hz();
+  if(speedo_hz==speedo_measurer.minimum_frequency){
+    speedo_hz=0.0;
+  }
   float tacho_hz=tacho_measurer.get_current_frequency_hz();
-  float tacho_rpm=tacho_hz/60;
+  if(tacho_hz==tacho_measurer.minimum_frequency){
+    tacho_hz=0.0;
+  }
+  float tacho_rpm=tacho_hz*30;
   tacho_drawer.update_float(tacho_rpm);
   speedo_drawer.update_float(speedo_hz);
 }

@@ -13,7 +13,8 @@ bool FrequencyMeasurer::make_measurement() {
 
 void FrequencyMeasurer::set_frequency(unsigned long micros_gap_since_last_pulse) {
 	current_gap_between_pulses=micros_gap_since_last_pulse;
-	current_frequency=current_gap_between_pulses/1000000.0;
+  float gap_in_seconds=current_gap_between_pulses/1000000.0;
+	current_frequency=1.0/gap_in_seconds;
 }
 
 void FrequencyMeasurer::measure_for_frequency_signal() {
