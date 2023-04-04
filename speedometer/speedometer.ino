@@ -30,7 +30,7 @@ GraphDrawer tacho_graph_drawer = GraphDrawer(&tft_display, 5,94, 150, 30, 100, 6
 FrequencyMeasurer speedo_measurer = FrequencyMeasurer(INPUT_SPEEDO, true, 0.1);
 FrequencyMeasurer tacho_measurer = FrequencyMeasurer(INPUT_TACHO, true, 0.1);
 
-unsigned long update_graph_interval_millis=1000;
+unsigned long update_graph_interval_millis=500;
 unsigned long updated_graph_last_millis=0;
 
 unsigned long update_dials_interval_millis=250;

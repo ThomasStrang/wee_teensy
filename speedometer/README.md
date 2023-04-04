@@ -1,7 +1,7 @@
 # Speedometer Project
 
 ![speedometer_in_action](speedometer_in_action.jpg)
-*example of the finished (for now) product*
+*example of the finished (for now) product. Yes, It lives in a dentures box.*
 
 This project is a speedometer with a wee tft display, for my suzuki jimny.
 
