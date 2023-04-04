@@ -1,6 +1,6 @@
 # Speedometer Project
 
-![speedometer_in_action](speedometer_in_action.jpeg)
+![speedometer_in_action](speedometer_in_action.jpg)
 *example of the finished (for now) product*
 
 This project is a speedometer with a wee tft display, for my suzuki jimny.
