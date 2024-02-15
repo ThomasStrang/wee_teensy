@@ -7,7 +7,7 @@
 #define BLACK 0
 #define WHITE 1
 
-#define MAX_VOLTAGE 3.3
+#define MAX_VOLTAGE 15
 
 uint16_t wait_micros = 0;//micros to wait between making readings
 float current_reading_frequency = 1.0; //calculated frequency of last reading

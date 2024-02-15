@@ -1,5 +1,6 @@
 
 #define INPUT_PIN 15
+#define INPUT_SWITCH_PIN 7
 
 #include <ADC.h>
 #include <ADC_util.h>
@@ -9,35 +10,45 @@ uint16_t voltages[NUM_VALS_IN_GRAPH];
 
 uint16_t read_voltage() {
   delayMicroseconds(wait_micros);
-  while(!adc.adc0->isComplete()){}
+  while (!adc.adc0->isComplete()) {}
   return adc.adc0->analogReadContinuous();
 }
 
 uint16_t* read_voltages() {
+  pinMode(INPUT_SWITCH_PIN, OUTPUT);
+  digitalWrite(INPUT_SWITCH_PIN, LOW);
   adc.adc0->startContinuous(INPUT_PIN);
   long start = micros();
-  for(int i = 0; i < NUM_VALS_IN_GRAPH; i++) {
+  for (int i = 0; i < NUM_VALS_IN_GRAPH; i++) {
     voltages[i] = read_voltage();
   }
-  long taken = micros()-start;
+  long taken = micros() - start;
   adc.adc0->stopContinuous();
-  float micros_per_reading = (float) taken /(float)(NUM_VALS_IN_GRAPH);
-  current_reading_frequency = 1000000/micros_per_reading;
+  float micros_per_reading = (float) taken / (float)(NUM_VALS_IN_GRAPH);
+  current_reading_frequency = 1000000 / micros_per_reading;
   Serial.print("Reading voltages at this frequency: ");
   Serial.println(current_reading_frequency);
   return voltages;
+  pinMode(INPUT_SWITCH_PIN, INPUT);
+}
+
+bool threshold_met() {
+  return analogRead(INPUT_PIN) > 128;
 }
 
 void sync_with_signal() {
+  pinMode(INPUT_SWITCH_PIN, OUTPUT);
+  digitalWrite(INPUT_SWITCH_PIN, LOW);
   int now = micros();
-  pinMode(INPUT_PIN,INPUT);
-  while(digitalRead(INPUT_PIN)) 
-    if(micros() - now > 1000) 
+  pinMode(INPUT_PIN, INPUT);
+  while (digitalRead(INPUT_PIN))
+    if (micros() - now > 1000)
       break;
-  while(!digitalRead(INPUT_PIN)) 
-    if(micros() - now > 1000) 
+  while (!digitalRead(INPUT_PIN))
+    if (micros() - now > 1000)
       break;
-  pinMode(INPUT_PIN,INPUT_DISABLE);
+  pinMode(INPUT_PIN, INPUT_DISABLE);
+  pinMode(INPUT_SWITCH_PIN, INPUT);
 }
 
 void setup_voltage_reading() {
