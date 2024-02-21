@@ -1,46 +1,48 @@
+#include <SPI.h>
+#include <SD.h>
+
 File myFile;
 
-void initialise_sd_card() {
-  Serial.print("Initializing SD card...");
-  if (!SD.begin(4)) {
-    Serial.println("initialization failed!");
-    while (1);
-  }
-  Serial.println("initialization done."); 
+void setup_sd_card() {
+  Serial.print("\nInitializing SD card...");
+  SPI.setMISO(33); 
+  SPI.setMOSI(34);
+  SPI.setSCLK(32);
+  SD.begin(25);
 }
 
-void run_example_sd_card_program() {
-  initialise_sd_card();
-  
-  // open the file. note that only one file can be open at a time,
-  // so you have to close this one before opening another.
+void save_file() {
+  myFile.close();
   myFile = SD.open("test.txt", FILE_WRITE);
-
-  // if the file opened okay, write to it:
-  if (myFile) {
-    Serial.print("Writing to test.txt...");
-    myFile.println("testing 1, 2, 3.");
-    // close the file:
-    myFile.close();
-    Serial.println("done.");
+  if(myFile) {
   } else {
-    // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
+    Serial.println("Error opening test.txt in write mode. Terminating.");
+    while(1);
   }
-  delay(2);
-  // re-open the file for reading:
-  myFile = SD.open("test.txt");
-  if (myFile) {
-    Serial.println("test.txt:");
-    // read from the file until there's nothing else in it:
+}
+
+void setup_storage_file() {
+   myFile = SD.open("test.txt");
+   if (myFile) {
+    Serial.println("Currently persisted data on sd card: ");
     while (myFile.available()) {
       Serial.write(myFile.read());
     }
-    // close the file:
-    myFile.close();
+    save_file();
   } else {
-    // if the file didn't open, print an error:
-    Serial.println("error opening test.txt");
+    Serial.println("Error opening test.txt. Terminating.");
+    while(1);
   }
-  Serial.println("all done, goodbye");
+}
+
+void handle_writing_to_file() {
+  bool was_written_to = false;
+  while(Serial.available()>0) {
+    myFile.write(Serial.read());
+    was_written_to = true;
+  }
+  if(was_written_to) {
+    save_file();
+    Serial.println("Wrote to file.");
+  }
 }
