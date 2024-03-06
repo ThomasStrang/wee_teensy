@@ -21,7 +21,10 @@ void save_file() {
   }
 }
 
+
+
 void setup_storage_file() {
+  
    myFile = SD.open("test.txt");
    if (myFile) {
     Serial.println("Currently persisted data on sd card: ");
@@ -38,6 +41,7 @@ void setup_storage_file() {
 void handle_writing_to_file() {
   bool was_written_to = false;
   while(Serial.available()>0) {
+    Serial.println(Serial.available());
     myFile.write(Serial.read());
     was_written_to = true;
   }

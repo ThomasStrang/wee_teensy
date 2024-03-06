@@ -1,22 +1,29 @@
 /*
- * This sketch is used to generate an ac sin wave from the DAC
- * A voltage divider (2 resistors) can be used to provide a 'ground' which is half the reference voltage of this board.
- * Then an ac sin wave can be measured between these 2 points using an oscilloscope.
- * 
+ * This sketch reads from a variety of input pins and writes the results to a file on the sd card, in csv format.
+ * The file it writes to is named after the current epoch time when the program starts. 
+ * The sketch might also read input from serial in, to perform such things as:
+ *  - updating the sampling frequency
+ *  - updating the writing frequency (if we read multiple values before writing them all at once?
+ *  - starting a new file
+ *  - stopping the data collection and instead doing something else like sending a ls of files or sending a file through serial.
  */
+#include "input.h"
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
+  Serial.setTimeout(10);
   while(!Serial){}
-  setup_sin_wave();
   setup_running_indicator();
-  setup_sd_card();
-  delay(1500);
-  setup_storage_file();
+  setup_rtc();
+//  setup_sd_card();
+//  delay(10);
+//  setup_storage_file();
+
 }
 
 void loop() {
   handle_running_indicator();
-  handle_sin_wave();
-  handle_writing_to_file();
+//  handle_writing_to_file();
+  handle_input();
+  delay(1000);
 }
