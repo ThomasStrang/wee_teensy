@@ -1,4 +1,5 @@
 #include <STM32RTC.h>
+#include "rtc.h"
 
 STM32RTC& rtc = STM32RTC::getInstance();
 
@@ -6,18 +7,6 @@ void setup_rtc() {
 //  rtc.setClockSource(STM32RTC::HSE_CLOCK);
   rtc.begin(); // initialize RTC 24H format
 }
-
-void handle_resetting_rtc() {
-  bool reset = false;
-  while(Serial.available()>0) {
-    Serial.read();
-    reset = true;
-  }
-  if(reset) {
-    rtc.setEpoch(1451606400);
-  }
-}
-
 
 void get_timestamp(char* buf) {
   time_t rawtime = rtc.getEpoch();
@@ -30,7 +19,7 @@ uint32_t get_epoch() {
   return rtc.getEpoch();
 }
 
-void handle_rtc_printing() {
+void print_rtc() {
   char buf[80];
   get_timestamp(buf);
  
@@ -40,7 +29,6 @@ void handle_rtc_printing() {
   Serial.println(buf);
 }
 
-void handle_rtc() {
-  handle_resetting_rtc();
-  handle_rtc_printing();
+void set_clock(uint32_t seconds) {
+  rtc.setEpoch(seconds);
 }

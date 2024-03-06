@@ -8,6 +8,7 @@
  *  - stopping the data collection and instead doing something else like sending a ls of files or sending a file through serial.
  */
 #include "input.h"
+#include "sd_card.h"
 
 void setup() {
   Serial.begin(115200);
@@ -15,15 +16,11 @@ void setup() {
   while(!Serial){}
   setup_running_indicator();
   setup_rtc();
-//  setup_sd_card();
-//  delay(10);
-//  setup_storage_file();
-
+  setup_sd_card();
 }
 
 void loop() {
   handle_running_indicator();
-//  handle_writing_to_file();
   handle_input();
-  delay(1000);
+  delay(100);
 }
