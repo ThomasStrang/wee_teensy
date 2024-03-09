@@ -73,9 +73,8 @@ void make_file(char* name_of_file) {
   }
 }
 
-void make_directory(char* name_of_directory) {
-  String filename = String(name_of_directory);
-  if(SD.exists(filename)) {
+void make_directory_str(String filename) {
+   if(SD.exists(filename)) {
     print_invalid_filename();
     return;
   }
@@ -84,9 +83,21 @@ void make_directory(char* name_of_directory) {
   }
 }
 
+void make_directory(char* name_of_directory) {
+  String filename = String(name_of_directory);
+  make_directory_str(filename);
+}
 
-void rm_file(char* name_of_file) {
+bool file_exists_str(String filename) {
+  return SD.exists(filename);
+}
+
+bool file_exists(char* name_of_file) {
   String filename = String(name_of_file);
+  return file_exists_str(filename);
+}
+
+void rm_file_str(String filename) {
   if(!SD.exists(filename)) {
     print_invalid_filename();
     return;
@@ -94,6 +105,11 @@ void rm_file(char* name_of_file) {
   if(!SD.remove(filename)) {
     print_failure();
   }
+}
+
+void rm_file(char* name_of_file) {
+  String filename = String(name_of_file);
+  rm_file_str(filename);
 }
 
 void rm_directory(char* name_of_directory) {
@@ -124,3 +140,5 @@ void print_file_contents(char* name_of_file) {
     print_failure();
   }
 }
+
+File curr_file;

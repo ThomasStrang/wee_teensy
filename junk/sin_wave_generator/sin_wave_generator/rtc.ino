@@ -8,11 +8,14 @@ void setup_rtc() {
   rtc.begin(); // initialize RTC 24H format
 }
 
-void get_timestamp(char* buf) {
+
+char rtc_buf[20];
+
+void fill_timestamp() {
   time_t rawtime = rtc.getEpoch();
   struct tm ts;
   ts = *localtime(&rawtime);
-  strftime(buf, 80, "%a %Y-%m-%d %H:%M:%S", &ts);
+  strftime(rtc_buf, 18, "%y-%m-%d_%H:%M:%S", &ts);
 }
 
 uint32_t get_epoch() {
@@ -20,15 +23,18 @@ uint32_t get_epoch() {
 }
 
 void print_rtc() {
-  char buf[80];
-  get_timestamp(buf);
- 
+  fill_timestamp();
   Serial.print("Unix time = ");
   Serial.print(get_epoch());
   Serial.print(" - ");
-  Serial.println(buf);
+  Serial.println(rtc_buf);
 }
 
 void set_clock(uint32_t seconds) {
   rtc.setEpoch(seconds);
+}
+
+char* get_timestamp() {
+  fill_timestamp();
+  return rtc_buf;
 }

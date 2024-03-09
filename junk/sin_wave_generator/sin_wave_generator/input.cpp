@@ -3,6 +3,7 @@
 #include <tuple>
 #include "rtc.h"
 #include "sd_card.h"
+#include "log.h"
 
 #define NULL_CHAR '\0'
 
@@ -40,10 +41,11 @@ char* attempt_parse_command(char* input, const char* command_to_parse) {
 std::tuple<handler_function, char*> parse_command(char* input) {
   handler_function handle_f = &handle_unknown_command;
   char* handler_args = NULL;
- for(auto c = commands.begin(); c != commands.end(); ++c) {
+  for(auto c = commands.begin(); c != commands.end(); ++c) {
     handler_args = attempt_parse_command(input, c->first);
     if(handler_args != NULL) {
       handle_f = c->second;
+      Serial.println(c->first + String("..."));
       break;
     }
   }
@@ -82,6 +84,10 @@ uint32_t stoi(char* a){
     i++;
   }
   return num;
+}
+
+void handle_unknown_command(char* args) {
+  Serial.println("Command not recognised.");
 }
 
 void handle_touch(char* args) {
@@ -142,20 +148,68 @@ void handle_view_clock(char* args) {
   print_rtc();
 }
 
-void handle_unknown_command(char* args) {
-  Serial.println("Command not recognised.");
+void handle_current_log(char* args) {
+  if(has_arg(args)) {
+    print_invalid_arg();
+    return;
+  }
+  print_current_log();
+}
+
+void handle_make_log(char* args) {
+  if(has_arg(args)) {
+    print_invalid_arg();
+    return;
+  }
+  start_new_log();
+}
+
+void handle_write_to_log(char* args) {
+  if(!has_arg(args)) {
+    print_invalid_arg();
+    return;
+  }
+  int len_of_args = 0;
+  for(int i=0; i< 511; i++) {
+    if(args[i] == '\r' || args[i] == 'n') {
+      len_of_args=i;
+      break;
+    }
+  }
+  write_to_log(args, len_of_args);
+}
+
+void handle_save_log(char* args) {
+  if(has_arg(args)) {
+    print_invalid_arg();
+    return;
+  }
+  save_log();
+}
+
+void handle_close_log(char* args) {
+  if(has_arg(args)) {
+    print_invalid_arg();
+    return;
+  }
+  close_log();
+}
+
+void handle_log_benchmark(char* args) {
+  run_log_benchmark(64, 16*128);//128kb in total.
 }
 
 void handle_input() {
-  if(Serial.available()) {
-    void (*handle_f) (char*);
-    
-    int num_chars = Serial.available();
-    char* chars = new char[num_chars];
-    Serial.readBytes(chars, num_chars);
-    chars[num_chars-1] = NULL_CHAR;//we replace the last character instead of appending after the last character because the last character is \r
-    auto tup = parse_command(chars);
-    (*(std::get<0>(tup)))(std::get<1>(tup));
-    delete chars;
+  if(Serial) {
+    if(Serial.available()) {
+      int num_chars = Serial.available();
+      char* chars = new char[num_chars];
+      Serial.readBytes(chars, num_chars);
+      chars[num_chars-1] = NULL_CHAR;//we replace the last character instead of appending after the last character because the last character is \r
+      auto tup = parse_command(chars);
+      (*(std::get<0>(tup)))(std::get<1>(tup));
+      Serial.println("-");
+      delete[] chars;
+    }
   }
 }

@@ -9,14 +9,16 @@
  */
 #include "input.h"
 #include "sd_card.h"
+#include "log.h"
 
 void setup() {
   Serial.begin(115200);
   Serial.setTimeout(10);
-  while(!Serial){}
   setup_running_indicator();
   setup_rtc();
   setup_sd_card();
+  setup_log();
+  delay(100);
 }
 
 void loop() {
