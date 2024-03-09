@@ -196,7 +196,7 @@ void handle_close_log(char* args) {
 }
 
 void handle_log_benchmark(char* args) {
-  run_log_benchmark(64, 16*128);//128kb in total.
+  run_log_benchmark(64, 16*512);//512kb in total.
 }
 
 void handle_input() {

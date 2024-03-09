@@ -101,15 +101,31 @@ void run_log_benchmark(int num_bytes_per_flush, int num_flushes) {
     delete[] bytes_to_write;
   }
   long dry_run_complete = micros();
+  unsigned long min_iteration_duration;
+  unsigned long max_iteration_duration;
+  unsigned long last_iteration_duration;
+  
+  unsigned long last_iteration_start;
+  unsigned long iteration_end;
   for(int i = 0; i < num_flushes; i++) {
     byte* bytes_to_write = new byte[num_bytes_per_flush];
     for(int j = 0; j < num_bytes_per_flush; j++) {
       bytes_to_write[j] = j%256;
     }
+    last_iteration_start = micros();
     write_to_log_bytes(bytes_to_write, num_bytes_per_flush);
-    save_log();
+    iteration_end = micros();
+    last_iteration_duration = iteration_end - last_iteration_start;
+    if(min_iteration_duration==0 || last_iteration_duration < min_iteration_duration) {
+      min_iteration_duration=last_iteration_duration;
+    }
+    if(max_iteration_duration < last_iteration_duration) {
+      max_iteration_duration = last_iteration_duration;
+    }
+//    save_log();
     delete[] bytes_to_write;
   }
+  save_log();
   long writes_done = micros();
 
   long started_log_duration = started_log - start;
@@ -120,6 +136,10 @@ void run_log_benchmark(int num_bytes_per_flush, int num_flushes) {
   Serial.println("started_log_duration: " + String(started_log_duration));
   Serial.println("dry_run_duration: " + String(dry_run_duration));
   Serial.println("writes_duration: " + String(writes_duration));
+  Serial.print("max_iteration_duration: ");
+  Serial.println(max_iteration_duration);
+  Serial.println("min_iteration_duration: " + String(min_iteration_duration));
+  Serial.println("last_iteration_duration: " + String(last_iteration_duration));
   Serial.println("cleaning up...");
   close_log();
   String log_name = current_log_file.name();
@@ -127,8 +147,33 @@ void run_log_benchmark(int num_bytes_per_flush, int num_flushes) {
   Serial.println("Deleting: " + file_name);
   rm_file_str(file_name);
 
-  //this was found to take 77ms to start a log,
-  // 137 ms to perform the dry run (i.e. allocate, set, and deallocate 512kb of memory)
-  // 121 seconds to perform the writing to the log
-  // 
+  /* this was found to take 77ms to start a log,
+   * 137 ms to perform the dry run (i.e. allocate, set, and deallocate 512kb of memory)
+   * 121 seconds to perform the writing to the log
+   * that is equivalent to 15ms per log flush of 64 bytes.
+   * at 12000rpm with 36 teeth on the eccentric shaft, that's 7200 teeth per second. 
+   * so flushing to the log file would take 108 teeth?
+   * 
+   * without constant flushing it took 4.5 seconds. not sure how often it flushed...
+   *    Wrote bytes to file: 524288
+        Total relevant time taken: 4871743
+        started_log_duration: 77550
+        dry_run_duration: 145352
+        writes_duration: 4794193
+   * 
+   * And with some extra logging:
+   *    Wrote bytes to file: 524288
+        Total relevant time taken: 4917831
+        started_log_duration: 77550
+        dry_run_duration: 145689
+        writes_duration: 4840281
+        max_iteration_duration: 32591
+        32591
+        min_iteration_duration: 19
+        last_iteration_duration: 20
+        cleaning up...
+   * 
+   * looks like it takes about 30ms to flush the whole SD buffer, or 1/30th of a second. that's terribly slow...
+   * we can use unsigned int chunkSize = myFile.availableForWrite(); to never write to the sd card when the buffer is full.
+   */
 }

@@ -8,6 +8,7 @@ void setup_sd_card() {
   SPI.setMOSI(34);
   SPI.setSCLK(32);
   SD.begin(25);
+  SPI.setClockDivider(4);
 }
 
 
