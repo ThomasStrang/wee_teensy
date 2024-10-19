@@ -26,7 +26,7 @@ bool current_signal_should_be_skipped(int current_signal_num) {
 }
 
 void handle_sin_wave() {
-  if(SIN_WAVE_ENABLED) {
+  if(SIN_WAVE_ENABLED) { 
     long num_micros_passed = micros();
     int current_signal_num = num_signals_completed(num_micros_passed);
     bool should_skip = current_signal_should_be_skipped(current_signal_num);
